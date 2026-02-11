@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 // Importation de tes images
 import mapBg from '../assets/map.png';
@@ -9,11 +9,6 @@ import BAPImg from '../assets/BAP.png';
 import ufrslhs from '../assets/ufrslhs.png';
 import Tuki from '../assets/tuki.png';
 
-
-// Pense à ajouter ces images dans tes assets et les importer ici demain :
-// import basicFitImg from '../assets/basicfit.png';
-// import spaImg from '../assets/spa.png';
-
 const memories = [
   {
     id: 1,
@@ -21,7 +16,7 @@ const memories = [
     location: "Fontaine & Place Pasteur",
     story: "On se connaissait à peine et tu m'as foudroyé avec ton 'C'est quoi cette dégaine de golmon ?'. Entre le burger à Papa mangé place Pasteur et ton rire, j'ai vite compris que ma dégaine c'était le cadet de mes soucis tant que t'étais là.",
     icon: "⛲",
-    x: "52%", y: "48%", // Centre-ville
+    x: "52%", y: "48%",
     image: BAPImg
   },
   {
@@ -30,7 +25,7 @@ const memories = [
     location: "McDo École-Valentin",
     story: "Le rush, l'odeur du gras et nos fous rires derrière le comptoir. C'était pas le spot le plus glamour de Besac, mais bosser avec toi c'était la seule raison qui me faisait pointer avec le sourire.",
     icon: "🍔",
-    x: "48%", y: "15%", // Nord
+    x: "48%", y: "15%",
     image: mcdoValImg
   },
   {
@@ -39,7 +34,7 @@ const memories = [
     location: "Subway & Bubble Waffle",
     story: "Le mec qui me sort que mon t-shirt est 'trop stylé' au Subway... On sait tous les deux qu'il mentait. Mais ce jour-là, même avec un t-shirt ridicule, je me sentais comme un roi à tes côtés.",
     icon: "🧇",
-    x: "65%", y: "55%", // Un peu décalé du centre
+    x: "65%", y: "55%",
     image: subwayImg
   },
   {
@@ -48,8 +43,8 @@ const memories = [
     location: "Basic Fit Chalezeule",
     story: "Nos premières séances... J'ai vite compris que la salle n'était pas forcément ton activité favorite, mais tu étais là, à galérer sur les machines juste pour passer une heure de plus avec moi. C'est là que j'ai compris que tu m'aimais vraiment.",
     icon: "💪",
-    x: "82%", y: "30%", // Droite
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500" // Remplacer par ton image importée
+    x: "82%", y: "30%",
+    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500"
   },
   {
     id: 5,
@@ -57,7 +52,7 @@ const memories = [
     location: "SPA de Chalezeule",
     story: "Le jour où j'ai adopté Tuki. On ne l'a pas adopté ensemble, mais quand je vois comment elle te regarde et comment elle te considère comme sa maman, je me dis qu'elle avait déjà tout captée bien avant nous.",
     icon: "🐱",
-    x: "85%", y: "45%", // Droite
+    x: "85%", y: "45%",
     image: Tuki
   },
   {
@@ -66,7 +61,7 @@ const memories = [
     location: "Fac LLCER / Centre-Ville",
     story: "Je t'accompagnais à la Fac juste pour gratter quelques minutes avec toi. Pendant que tu étais en cours, moi je m'installais à la BU pour coder. J'aurais pu rester chez moi, mais c'était tellement mieux de t'attendre là-bas.",
     icon: "💻",
-    x: "25%", y: "75%", // Bas Gauche
+    x: "25%", y: "75%",
     image: ufrslhs
   },
   {
@@ -75,14 +70,43 @@ const memories = [
     location: "Ton Cocon",
     story: "Ton appart, avec les chats qui y faisaient la loi. C'est ici que j'ai réalisé que 'chez moi', c'était pas une adresse, c'était juste là où tu étais.",
     icon: "🐈",
-    x: "45%", y: "42%", // Proche centre
+    x: "45%", y: "42%",
     image: battantImg
   }
+];
+
+const futureMemories = [
+	"Notre emménagement à Lyon... 🏠",
+	"La présentation à nos familles... 🤝",
+  	"La Fatiha le 13 Juillet 2025... 💍",
+  	"Les anniversaires surprises... 🎂",
+  	"Et tellement d'autres moments qu'on ne peut pas laisser passer. ❤️",
+  	"Vite !!",
+	"Retourne sur Connected2Me pour lui renvoyer un message et lui faire ouvrir les yeux !"
 ];
 
 const MemoryMap = ({ onComplete }) => {
   const [selected, setSelected] = useState(null);
   const [visited, setVisited] = useState([]);
+  const [isEnding, setIsEnding] = useState(false);
+  const [currentFutureIdx, setCurrentFutureIdx] = useState(-1);
+
+  // Animation des souvenirs futurs
+  useEffect(() => {
+    if (isEnding) {
+      if (currentFutureIdx < futureMemories.length - 1) {
+        const timer = setTimeout(() => {
+          setCurrentFutureIdx(prev => prev + 1);
+        }, 2500);
+        return () => clearTimeout(timer);
+      } else {
+        const finalTimer = setTimeout(() => {
+          onComplete();
+        }, 3000);
+        return () => clearTimeout(finalTimer);
+      }
+    }
+  }, [isEnding, currentFutureIdx, onComplete]);
 
   const isUnlocked = (index) => index === 0 || visited.includes(memories[index - 1].id);
 
@@ -109,13 +133,8 @@ const MemoryMap = ({ onComplete }) => {
 
       {/* LA VRAIE MAP EN FOND */}
       <div className="flex-1 relative overflow-hidden bg-slate-800">
-        <img 
-          src={mapBg} 
-          alt="Besançon Map" 
-          className="absolute inset-0 w-full h-full object-cover opacity-80"
-        />
+        <img src={mapBg} alt="Map" className="absolute inset-0 w-full h-full object-cover opacity-80" />
 
-        {/* MARQUEURS */}
         {memories.map((m, index) => {
           const unlocked = isUnlocked(index);
           const isDone = visited.includes(m.id);
@@ -128,7 +147,6 @@ const MemoryMap = ({ onComplete }) => {
               style={{ left: m.x, top: m.y }}
               onClick={() => handleSelect(m)}
             >
-              {/* Animation de saut groupée (Pin + Emoji) */}
               <motion.div 
                 className={`relative w-12 h-14 ${unlocked ? 'opacity-100' : 'opacity-40 grayscale blur-[1px]'}`}
                 animate={unlocked && !isDone ? { y: [0, -12, 0] } : { y: 0 }}
@@ -146,18 +164,57 @@ const MemoryMap = ({ onComplete }) => {
         })}
 
         {/* BOUTON FINAL */}
-        {visited.length === memories.length && (
+        {visited.length === memories.length && !isEnding && (
           <motion.div initial={{ y: 50 }} animate={{ y: 0 }} className="absolute bottom-8 w-full px-8 z-30">
-            <button onClick={onComplete} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-[0_10px_30px_rgba(37,99,235,0.4)] active:scale-95 transition-all uppercase tracking-widest">
+            <button 
+              onClick={() => setIsEnding(true)} 
+              className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-[0_10px_30px_rgba(37,99,235,0.4)] active:scale-95 transition-all uppercase tracking-widest"
+            >
               Réparer son cœur ❤️
             </button>
           </motion.div>
         )}
       </div>
 
-      {/* MODAL STORY (Slide up) */}
+      {/* CINÉMATIQUE ÉCRAN NOIR */}
       <AnimatePresence>
-        {selected && (
+        {isEnding && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 z-[200] bg-black flex flex-col items-center justify-center p-8 text-center"
+          >
+            <motion.p 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-gray-400 text-sm italic mb-12"
+            >
+              "Et plein d'autres souvenirs nous attendent encore après Besançon..."
+            </motion.p>
+
+            <div className="h-24 flex items-center justify-center">
+              <AnimatePresence mode="wait">
+                {currentFutureIdx >= 0 && (
+                  <motion.p
+                    key={currentFutureIdx}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.1 }}
+                    transition={{ duration: 0.8 }}
+                    className="text-white text-xl font-medium tracking-wide leading-relaxed"
+                  >
+                    {futureMemories[currentFutureIdx]}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL STORY */}
+      <AnimatePresence>
+        {selected && !isEnding && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end"
@@ -176,7 +233,7 @@ const MemoryMap = ({ onComplete }) => {
               <p className="text-gray-600 text-sm leading-relaxed italic font-serif border-l-4 border-blue-500/20 pl-4">
                 "{selected.story}"
               </p>
-              <button onClick={() => setSelected(null)} className="w-full mt-8 bg-gray-100 py-4 rounded-xl font-bold text-gray-400">
+              <button onClick={() => setSelected(null)} className="w-full mt-8 bg-gray-100 py-4 rounded-xl font-bold text-gray-400 text-xs uppercase tracking-widest">
                 Continuer l'itinéraire
               </button>
             </motion.div>
